@@ -1,7 +1,54 @@
+html {
+	height: 100%;
+}
 body {
-	background-color: green;
-
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 	h1 {
-		color: white;
+		color: black;
+	}
+	.containerGrid {
+		display: flex;
+  	flex: 1;
+		border: 1px solid black;
+	}
+	.message {
+		background-color: yellow;
+		border-bottom: 1px solid black;
+		width: 100%;
+	}
+	.messages {
+		flex:1;
+		height:10px;
+		overflow: scroll;
+		border: 1px solid green;
+	}
+	.header {
+		flex: 1;
+		height: 50px;
+		border-bottom: 3px solid black;
+	}
+	.handCell {
+		flex: 1;
+		flex-grow: 1;
+  	flex-shrink: 1;
+		margin: 10px;
+		border: 1px dashed red;
+	}
+	.controls {
+		float: left;
+		width:50px;
+		height:100%;
+		border: 1px solid black;
+	}
+	.pieceImg{
+		width:200px;
+	}
+	.ctrlImg {
+		width:50px;
+	}
+	.handContainer {
+		border: 2px solid grey;
 	}
 }
