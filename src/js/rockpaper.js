@@ -330,7 +330,10 @@ export default class RockPaperScissors {
 	welcomeMessages() {
 		this.writeMessage("Initialising game");
 		this.writeMessage("Going to find a rock, a piece of papyrus and scissors");
-		this.writeMessage("Life advice: Never run with scissors!");
+		this.writeMessage("Solid advice: Never run with scissors!");
+		if (this.isFullAutoMode()) {
+			this.writeMessage("<strong>FULL AUTO!<BR/>Press the ROUND number to progress</strong>");
+		}
 	}
 
 	/**
