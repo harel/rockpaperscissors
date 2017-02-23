@@ -18,14 +18,29 @@
 			player1ctrl: 'player1Ctrl',
 			player2: 'player2',
 			player2ctrl: 'player2Ctrl',
-			messages: 'messages'
+			messages: 'messages',
+			rounds: 'roundIndicator'
 		};
-		function startGame(edition) {
+		var LIZARD_SPOCK_ASSETS = {
+			'rock': 'http://www.dododex.com/media/item/Stone.png', // ROCK
+			'paper': 'http://eliteownage.com/paper.jpg', // PAPER
+			'scissors': 'http://findicons.com/files/icons/196/office_tools/128/scissors.png', // SCISSORS
+			'lizard': 'http://weknowyourdreams.com/images/lizard/lizard-07.jpg',
+			'spock': 'http://ichef-1.bbci.co.uk/news/660/media/images/81300000/jpg/_81300586_81300585.jpg'
+		}
+		var LIZARD_SPOCK_RULES = {
+			'rock': {wins: ['scissors', 'lizard']},
+			'paper': {wins: ['rock', 'spock']},
+			'scissors': {wins: ['paper', 'lizard']},
+			'lizard': {wins: ['paper', 'spock']},
+			'spock': {wins: ['rock', 'scissors']}
+		}
+		function startGame(edition, rules=null) {
 			const players = [
 				document.getElementById('selectPlayer1').value,
 				document.getElementById('selectPlayer2').value
 			]
-			window.rps = new window.RockPaperScissors(players, RENDER_SPEC, edition)
+			window.rps = new window.RockPaperScissors(players, RENDER_SPEC, edition, rules)
 		}
 	</script>
 </head>
@@ -33,17 +48,19 @@
 	<div class="header">
 		<h1>Rock! Paper! Scissors! Whatever!</h1>
 		<div class="controlPanel">
+
 			<select id="selectPlayer1" class="select">
 				<option value="H">Hooman</option>
-				<option value="C">Kompootar</option>
+				<option value="C" selected>Kompootar</option>
 			</select>
 			VS
 			<select id="selectPlayer2" class="select">
 				<option value="H">Hooman</option>
 				<option value="C" selected>Kompootar</option>
 			</select>
-			<button class="button" onClick="startGame();">Start Boring Edition</button>
-			<button class="button" onClick="startGame(MEME_EDITION);">Start Meme Edition</button>
+			<button class="button" onClick="startGame();">Boring Edition</button>
+			<button class="button" onClick="startGame(MEME_EDITION);">Meme Edition</button>
+			<button class="button" onClick="startGame(LIZARD_SPOCK_ASSETS, LIZARD_SPOCK_RULES);">Lizard Spock</button>
 		</div>
 	</div>
 	<div class="messages" id="messages">
@@ -54,10 +71,13 @@
 				<div class="controls" id="player1Ctrl"></div>
 				<div id="player1" class="piece"></div>
 			</div>
+			<div id="roundIndicator" class="rounds">
+			</div>
 			<div class="handCell">
 				<div class="controls" id="player2Ctrl"></div>
 				<div id="player2" class="piece"></div>
 			</div>
+
 	</div>
 	<div class="footer">Rock! Paper! Scissors! Whatever! was made for fun and potential profit by Harel Malka <a href="mailto:harel@harelmalka.com">harel@harelmalka.com</a></div>
 </body>

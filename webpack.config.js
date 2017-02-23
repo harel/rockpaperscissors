@@ -36,11 +36,11 @@ module.exports = {
 		new ExtractTextPlugin("[name].css")
 	],
 	module: {
-		preLoaders: [{
-			test: /\.js$/,
-			loader: 'eslint',
-			exclude: [/node_modules/]
-		}],
+		// preLoaders: [{
+		// 	test: /\.js$/,
+		// 	loader: 'eslint',
+		// 	exclude: [/node_modules/]
+		// }],
 		loaders: [{
 			test: /\.css$/,
 			loader: ExtractTextPlugin.extract('style-loader', 'css-loader')

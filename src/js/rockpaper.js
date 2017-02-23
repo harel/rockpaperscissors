@@ -12,11 +12,12 @@
  * ids of certain containers to render elements to. Those ids are supplied as
  * the renderingSpec argument to the constructor, and have the following signature:
  * {
- * 	player1: '#player1container',
- * 	player1ctrl: '#player1Ctrl',
- * 	player2: '#player2container',
- * 	player2ctrl: '#player2Ctrl',
- * 	messages: '#statusContainer'
+ * 	player1: 'player1container',
+ * 	player1ctrl: 'player1Ctrl',
+ * 	player2: 'player2container',
+ * 	player2ctrl: 'player2Ctrl',
+ * 	messages: 'statusContainer',
+ * 	rounds: 'roundsIndicator'
  * }
  *
  * This game was brought to you jQuery free, and in beautiful Vanilla flavour.
@@ -41,16 +42,17 @@ const DEFAULT_ASSETS = {
 	'scissors': 'http://findicons.com/files/icons/196/office_tools/128/scissors.png' // SCISSORS
 };
 const DEFAULT_RULES = {
-	'rock': {wins: [2]},
-	'paper': {wins: [0]},
-	'scissors': {wins: [1]}
+	'rock': {wins: ['scissors']},
+	'paper': {wins: ['rock']},
+	'scissors': {wins: ['paper']}
 };
 const DEFAULT_RENDER_SPEC = {
 	player1: 'player1',
 	player1ctrl: 'player1Ctrl',
 	player2: 'player2',
 	player2ctrl: 'player2Ctrl',
-	messages: 'messages'
+	messages: 'messages',
+	rounds: 'roundIndicator'
 };
 /**
  * Returns an element by id
@@ -98,6 +100,7 @@ const clearChildren = function(element) {
 
 export default class RockPaperScissors {
 	constructor(players=null, renderingSpec=null, assets=null, rules=null, rounds=null) {
+		console.log(players, renderingSpec, assets, rules, rounds)
 		this.renderingSpec = renderingSpec || DEFAULT_RENDER_SPEC;
 		// setup the assets and rules if provided or use the default
 		this.assets = assets || DEFAULT_ASSETS;
@@ -115,8 +118,20 @@ export default class RockPaperScissors {
 		// state of players played. When this array's sum is 1, eval should happen
 		this.state = [0, 0];
 		this.maxRounds = rounds || DEFAULT_NUM_OF_ROUNDS;
-		this.rounds = 0;
+		this.rounds = 1;
+		// pause state for fully automated matches
+		this.paused = false;
+		this.turn = PLAYER_1;
 		this.initialiseGame();
+	}
+
+	/**
+	 * Prepare a new game
+	 */
+	initialiseGame() {
+		this.initialiseLayout();
+		this.welcomeMessages();
+		this.run();
 	}
 
 	/**
@@ -134,46 +149,31 @@ export default class RockPaperScissors {
 		clearChildren(this.player2Ctrl);
 		this.messagesContainer = byId(this.renderingSpec.messages);
 		clearChildren(this.messagesContainer);
+		this.roundsIndicator = byId(this.renderingSpec.rounds);
+		this.roundsIndicator.addEventListener('click', ()=>{
+			this.run();
+		})
+		clearChildren(this.roundsIndicator);
 		this.attachControls();
 		this.writeMessage('Layout ready');
 	}
 
-	/**
-	 * Prepare a new game
-	 */
-	initialiseGame() {
-		this.initialiseLayout();
-		this.welcomeMessages();
-		this.run();
-	}
-
 	run() {
-		// if (this.rounds >= this.maxRounds) {
-		// 	console.log("END OF ROUNDS")
-		// 	this.rounds = 1;
-		// 	this.writeMessage(this.matchLog.join('-'))
-		// 	return;
-		// }
+		if (this.rounds > this.maxRounds) {
+			return this.matchFinished();
+		}
+		this.roundsIndicator.innerHTML = this.rounds;
 		this.players.map((playerType, player) => {
-			let otherPlayer = 1 - player;
-			let cpuPlayed = false;
-			if (playerType == CPU && this.state[player] == 0 &&
-				(this.state[otherPlayer] == 1 || this.players[otherPlayer] == CPU)) {
+			if (!this.hand[player] && playerType == CPU) {
 				this.getHandForPlayer(player);
-				this.state[player] = 1;
-				this.renderHands();
-				cpuPlayed = true;
-			}
-			if (this.shouldEval()) {
-				const winner = this.evaluateHand();
-				this.writeMessage(`Round ${this.rounds} of ${this.maxRounds} was won by: ${OUTCOME_LABELS[winner]}`);
-				if (this.rounds >= this.maxRounds) {
-					this.matchFinished();
-				}
-			} else if (this.state[otherPlayer] == 0 && this.players[otherPlayer] == CPU && cpuPlayed) {
-				this.run()
 			}
 		})
+		if (this.hand[0] && this.hand[1] && this.rounds <= this.maxRounds) {
+			this.renderHands();
+			const thisRound = this.rounds;
+			const winner = this.evaluateHand();
+			this.writeMessage(`${thisRound} of ${this.maxRounds} won by: ${OUTCOME_LABELS[winner]}`);
+		}
 	}
 
 	/*
@@ -243,7 +243,7 @@ export default class RockPaperScissors {
 		this.state = [0, 0];
 		this.hand = Array(2);
 		if (full) {
-			this.rounds = 0;
+			this.rounds = 1;
 			this.writeMessage("Again, Again! Lets go again!")
 		}
 	}
@@ -259,22 +259,24 @@ export default class RockPaperScissors {
 	}
 
 	/**
-	 * Generate the game controls for each Human player.
+	 * Generate the game controls for each player.
 	 */
 	generateControls(player) {
-		const ctrlImages = [...Array(3).keys()];
-		const controls = Object.keys(this.assets); //
+		const controls = Object.keys(this.assets);
+		const ctrlImages = [...Array(controls.length).keys()];
 		controls.map((item, index)=>{
 			let attributes = {
 				src: this.assets[item]
 			}
 			let className = this.players[player] == HUMAN ? 'ctrlImg' : 'ctrlImgCpu';
 			let el = createEl('img', className, null, attributes);
+			el.setAttribute('title', item);
 			if (this.players[player] == HUMAN) {
 				el.addEventListener('click' , () => {
 					this.hand[player] = item;
 					this.state[player] = 1;
 					this.renderHands();
+					console.log("IMAGE CLICK")
 					this.run();
 				})
 			}
@@ -297,7 +299,7 @@ export default class RockPaperScissors {
 	 * @param [number] either PLAYER_1 or PLAYER_2
 	 */
 	getHandForPlayer(player) {
-		const randHand = Math.floor(Math.random() * 3);
+		const randHand = Math.floor(Math.random() * Object.keys(this.assets).length);
 		this.hand[player] = this.pieces[randHand];
 		return this.hand[player];
 	}
@@ -307,9 +309,11 @@ export default class RockPaperScissors {
 		const imageP2 = this.hand[PLAYER_2] ? this.assets[this.hand[PLAYER_2]] : false;
 		if (imageP1) {
 			this.player1Container.innerHTML = `<img src="${imageP1}" class="pieceImg"/>`;
+			this.writeMessage('Player 1 threw ' + this.hand[PLAYER_1])
 		}
 		if (imageP2) {
 			this.player2Container.innerHTML = `<img src="${imageP2}" class="pieceImg"/>`;
+			this.writeMessage('Player 2 threw ' + this.hand[PLAYER_2])
 		}
 	}
 
@@ -333,7 +337,7 @@ export default class RockPaperScissors {
 	 * Write a message to the messages container
 	 */
 	writeMessage(message) {
-		const messageBlock = createEl('div', 'message', `<div class="message">${message}</div>`);
+		const messageBlock = createEl('div', 'message', message);
 		this.messagesContainer.insertBefore(messageBlock, this.messagesContainer.firstChild);
 	}
 

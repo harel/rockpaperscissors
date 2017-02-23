@@ -31,6 +31,17 @@ body {
 		padding: 5px;
 		margin-left: 5px;
 	}
+
+	.rounds {
+		color: black;
+		font-size: 48px;
+		font-weight: bold;
+		float: left;
+		cursor: pointer;
+	}
+	.rounds:hover{
+		border: 2px solid red;
+	}
 	.select {
 		background-color: silver;
 		color: black;
@@ -96,7 +107,8 @@ body {
 		width:50px;
 		height:100%;
 		border: 1px solid black;
-		padding: 2px;
+		padding: 3px;
+		margin:1px;
 	}
 	.pieceImg{
 		@media all and (min-width: 1024px) and (max-width: 1280px) {
