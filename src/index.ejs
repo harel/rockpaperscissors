@@ -5,11 +5,42 @@
 	<meta charset="UTF-8">
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script>
+		var MEME_EDITION = {
+			'rock': 'https://media.giphy.com/media/HbkT5F5CiRD3O/giphy.gif',
+			'paper': 'https://media.giphy.com/media/8p8E1sylIARDW/giphy.gif',
+			'scissors': 'https://s-media-cache-ak0.pinimg.com/originals/12/03/6e/12036e3aacd59680b4bbdbbcc72486d7.gif'
+		};
+		var RENDER_SPEC = {
+			player1: 'player1',
+			player1ctrl: 'player1Ctrl',
+			player2: 'player2',
+			player2ctrl: 'player2Ctrl',
+			messages: 'messages'
+		};
+		function startGame(edition) {
+			const players = [
+				document.getElementById('selectPlayer1').value,
+				document.getElementById('selectPlayer2').value
+			]
+			window.rps = new window.RockPaperScissors(players, RENDER_SPEC, edition)
+		}
+	</script>
 </head>
 <body>
 	<div class="header">
 		<h1>Rock! Paper! Scissors! Whatever!</h1>
-
+		Player 1: <select id="selectPlayer1" class="select">
+			<option value="H">Hooman</option>
+			<option value="C">Kompootar</option>
+		</select>
+		Player 2:
+		<select id="selectPlayer2" class="select">
+			<option value="H">Hooman</option>
+			<option value="C" selected>Kompootar</option>
+		</select>
+		<button class="button" onClick="startGame();">Boring Edition</button>
+		<button class="button" onClick="startGame(MEME_EDITION);">Meme Edition</button>
 	</div>
 	<div class="messages" id="messages">
 		<div class="message">Ready</div>
@@ -25,5 +56,15 @@
 			</div>
 	</div>
 	<div class="footer">Footer info</div>
+	<script language="text/javascript">
+		// var MEME_EDITION = {
+		// 	'rock': 'https://media.giphy.com/media/HbkT5F5CiRD3O/giphy.gif',
+		// 	'paper': 'https://media.giphy.com/media/8p8E1sylIARDW/giphy.gif',
+		// 	'scissors': 'https://s-media-cache-ak0.pinimg.com/originals/12/03/6e/12036e3aacd59680b4bbdbbcc72486d7.gif'
+		// }
+		// function startGame(assets) {
+		// 	window.rps = new RockPaperScissors(window.renderSpec, assets);
+		// }
+	</script>
 </body>
 </html>
