@@ -27,14 +27,14 @@ const HUMAN = 'H';
 const CPU = 'C';
 const WAIT_IMG = 'http://www.threadbombing.com/data/media/2/xgllya.gif';
 const DEFAULT_ASSETS = {
-	0: 'http://www.dododex.com/media/item/Stone.png', // ROCK
-	1: 'http://eliteownage.com/paper.jpg', // PAPER
-	2: 'http://findicons.com/files/icons/196/office_tools/128/scissors.png' // SCISSORS
+	'rock': 'http://www.dododex.com/media/item/Stone.png', // ROCK
+	'paper': 'http://eliteownage.com/paper.jpg', // PAPER
+	'scissors': 'http://findicons.com/files/icons/196/office_tools/128/scissors.png' // SCISSORS
 }
 const DEFAULT_RULES = {
-	0: {wins: [2]},
-	1: {wins: [0]},
-	2: {wins: [1]}
+	'rock': {wins: [2]},
+	'paper': {wins: [0]},
+	'scissors': {wins: [1]}
 }
 /**
  * Returns an element by id
@@ -81,7 +81,7 @@ export default class RockPaperScissors {
 		// current player
 		this.currentPlayer = PLAYER_1;
 		// all the game 'pieces'
-		this.pieces = Object.keys(this.assets).map(k => parseInt(k));
+		this.pieces = Object.keys(this.assets);
 		// current played hand
 		this.hand = Array(2);
 		// state of players played. When this array's sum is 1, eval should happen
@@ -145,7 +145,7 @@ export default class RockPaperScissors {
 		} else {
 			const p1Hand = this.hand[PLAYER_1];
 			console.log("Player one hand is ", p1Hand);
-			const p1HandWins = this.rules[p1Hand];
+			const p1HandWins = this.rules[p1Hand].wins;
 			if (p1HandWins.indexOf(this.hand[PLAYER_2]) > -1 ) {
 				return this.scoreAndReset(PLAYER_1);
 			} else {
@@ -161,23 +161,24 @@ export default class RockPaperScissors {
 	}
 
 	generateControls(player) {
-		const controls = [...Array(3).keys()];
+		const ctrlImages = [...Array(3).keys()];
+		const controls = Object.keys(this.assets); //
 		controls.map((item, index)=>{
 			let attributes = {
-				src: this.assets[index]
+				src: this.assets[item]
 			}
 			let el = createEl('img', 'ctrlImg', null, attributes);
 			el.addEventListener('click' , () => {
-				this.writeMessage(player + " CLICKED " + index);
-				this.hand[player] = index;
+				this.writeMessage(player + " CLICKED " + item);
+				this.hand[player] = item;
 				this.state[player] = 1;
 				console.log("STATE AFTER CLICK", this.state, "HAND IS", this.hand)
 				this.renderHands();
 				this.run();
 			})
-			controls[index] = el;
+			ctrlImages[index] = el;
 		})
-		return controls;
+		return ctrlImages;
 	}
 
 	attachControls() {
