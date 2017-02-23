@@ -1,5 +1,12 @@
 /**
  *
+ * The game provides a set of default criteria for paperrockstone but it is
+ * possible to extend the game into different variants by providing your own
+ * assets and rule sets.
+ * The assets are an object where the keys are numbered and the values are images
+ * representing the game piece (rock, paper, scissors, lizard etc.) and the rules
+ * is a map describing which piece wins which other piece.
+ *
  * RPS doesn't assume a rendering environment and instead requires the
  * ids of certain containers to render elements to. Those ids are supplied as
  * the renderingSpec argument to the constructor, and have the following signature:
@@ -11,28 +18,46 @@
  * 	messages: '#statusContainer'
  * }
  *
- *
+ * This game was brought to you jQuery free, and in beautiful Vanilla flavour.
  */
 const PLAYER_1 = 0;
 const PLAYER_2 = 1;
+const DRAW = -1;
 const HUMAN = 'H';
 const CPU = 'C';
-const ROCK = 0;
-const PAPER = 1;
-const SCISSORS = 2;
-const assets = {
-	0: 'http://www.dododex.com/media/item/Stone.png',
-	1: 'http://eliteownage.com/paper.jpg',
-	2: 'http://findicons.com/files/icons/196/office_tools/128/scissors.png'
+const WAIT_IMG = 'http://www.threadbombing.com/data/media/2/xgllya.gif';
+const DEFAULT_ASSETS = {
+	0: 'http://www.dododex.com/media/item/Stone.png', // ROCK
+	1: 'http://eliteownage.com/paper.jpg', // PAPER
+	2: 'http://findicons.com/files/icons/196/office_tools/128/scissors.png' // SCISSORS
 }
-
+const DEFAULT_RULES = {
+	0: {wins: [2]},
+	1: {wins: [0]},
+	2: {wins: [1]}
+}
+/**
+ * Returns an element by id
+ * @param  {string} id element selector
+ * @return {DomNode}
+ */
 const byId = function(id) {
 	return document.getElementById(id);
 }
 
-const createEl = function(elementType, elementClass, content=null, attributes=null) {
+/**
+ * Helper Create DOM element
+ * @param  {string} elementType       The name of the element to create (div, img etc.)
+ * @param  {string} elementClass      Any class name to attach
+ * @param  {string} [content=null]    Any content to set as innerHTML
+ * @param  {object} [attributes=null] Any additional attributes
+ * @return {DOMNode}
+ */
+const createEl = function(elementType, elementClass=null, content=null, attributes=null) {
 	const element = document.createElement(elementType);
-	element.className = elementClass;
+	if (elementClass) {
+		element.className = elementClass;
+	}
 	if (attributes && typeof(attributes)=='object') {
 		Object.keys(attributes).map((key) => {
 			element.setAttribute(key, attributes[key])
@@ -45,17 +70,22 @@ const createEl = function(elementType, elementClass, content=null, attributes=nu
 }
 
 export default class RockPaperScissors {
-	constructor(renderingSpec) {
+	constructor(renderingSpec, assets=null, rules=null) {
 		this.renderingSpec = renderingSpec;
 		console.log('constructor', this, arguments)
+		// setup the assets and rules if provided or use the default
+		this.assets = assets || DEFAULT_ASSETS;
+		this.rules = rules || DEFAULT_RULES;
 		// this match's players
 		this.players = [HUMAN, CPU];
 		// current player
 		this.currentPlayer = PLAYER_1;
 		// all the game 'pieces'
-		this.pieces = [ROCK, PAPER, SCISSORS];
+		this.pieces = Object.keys(this.assets);
 		// current played hand
 		this.hand = Array(2);
+		// state of players played. When this array's sum is 1, eval should happen
+		this.state = [0, 0];
 		this.initialiseGame();
 	}
 
@@ -79,21 +109,70 @@ export default class RockPaperScissors {
 	initialiseGame() {
 		this.initialiseLayout();
 		this.welcomeMessages();
-		this.prepareHands();
-		this.renderHands();
+		// this.prepareHands();
+		// this.renderHands();
+		this.run();
+	}
 
+	run() {
+		this.players.map((playerType, player) => {
+			let otherPlayer = 1 - player;
+			console.log("P", player, "T", playerType, "this:", this.state[player], "Other", this.state[otherPlayer])
+			if (playerType == CPU && this.state[player] == 0 && this.state[otherPlayer] == 1) {
+				console.log("COMPUTER PLAY", playerType, player)
+				this.getHandForPlayer(player);
+				this.state[player] = 1;
+				this.renderHands();
+				console.log("HAND AFTER CPU", this.hand);
+			} else if (this.shouldEval()) {
+				console.log("SHOULD EVAL");
+				const winner = this.evaluateHand();
+
+				this.writeMessage("WINNER IS " +  winner)
+			}
+		})
+
+	}
+
+	shouldEval() {
+		return this.state.reduce((a, b) => a + b, 0) == 2;
+	}
+
+	evaluateHand() {
+		if (this.hand[PLAYER_1] == this.hand[PLAYER_2]) {
+			return this.scoreAndReset(DRAW);
+		} else {
+			const p1Hand = this.hand[PLAYER_1];
+			console.log("Player one hand is ", p1Hand)
+			const p1HandWins = this.rules[p1Hand];
+			if (p1HandWins.indexOf(this.hand[PLAYER_2]) > -1 ) {
+				return this.scoreAndReset(PLAYER_1);
+			} else {
+				return this.scoreAndReset(PLAYER_2);
+			}
+		}
+	}
+
+	scoreAndReset(winner) {
+		this.state = [0, 0];
+		this.hand = Array(2);
+		return winner;
 	}
 
 	generateControls(player) {
 		const controls = [...Array(3).keys()];
 		controls.map((item, index)=>{
-			console.log(item, index);
 			let attributes = {
-				src: assets[index]
+				src: this.assets[index]
 			}
 			let el = createEl('img', 'ctrlImg', null, attributes);
 			el.addEventListener('click' , () => {
 				this.writeMessage(player + " CLICKED " + index);
+				this.hand[player] == index;
+				this.state[player] = 1;
+				console.log("STATE AFTER CLICK", this.state)
+				this.renderHands();
+				this.run();
 			})
 			controls[index] = el;
 		})
@@ -126,8 +205,11 @@ export default class RockPaperScissors {
 	}
 
 	renderHands() {
-		this.player1Container.innerHTML = `<img src="${assets[this.hand[PLAYER_1]]}" class="pieceImg"/>`;
-		this.player2Container.innerHTML = `<img src="${assets[this.hand[PLAYER_2]]}" class="pieceImg"/>`;
+		console.log("RENDER", this.hand)
+		const imageP1 = this.hand[PLAYER_1] ? this.assets[this.hand[PLAYER_1]] : WAIT_IMG;
+		const imageP2 = this.hand[PLAYER_2] ? this.assets[this.hand[PLAYER_2]] : WAIT_IMG;
+		this.player1Container.innerHTML = `<img src="${imageP1}" class="pieceImg"/>`;
+		this.player2Container.innerHTML = `<img src="${imageP2}" class="pieceImg"/>`;
 	}
 
 	/**

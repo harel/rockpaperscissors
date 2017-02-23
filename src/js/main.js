@@ -2,7 +2,7 @@ require('../css/main.scss');
 
 import print from './module';
 import RockPaperScissors from './rockpaper';
- 
+
 const renderSpec = {
 	player1: 'player1',
 	player1ctrl: 'player1Ctrl',
@@ -10,5 +10,5 @@ const renderSpec = {
 	player2ctrl: 'player2Ctrl',
 	messages: 'messages'
 };
-const rps = new RockPaperScissors(renderSpec);
-print(rps.status());
+window.rps = new RockPaperScissors(renderSpec);
+print(window.rps.status());
