@@ -3,9 +3,10 @@
  * The game provides a set of default criteria for paperrockstone but it is
  * possible to extend the game into different variants by providing your own
  * assets and rule sets.
- * The assets are an object where the keys are numbered and the values are images
- * representing the game piece (rock, paper, scissors, lizard etc.) and the rules
- * is a map describing which piece wins which other piece.
+ * The assets are an object where the values are images representing the
+ * game piece (rock, paper, scissors, lizard etc.) and the rules. The keys
+ * should describe each piece.
+ * Rules is a map describing which piece wins which other piece.
  *
  * RPS doesn't assume a rendering environment and instead requires the
  * ids of certain containers to render elements to. Those ids are supplied as
@@ -20,6 +21,7 @@
  *
  * This game was brought to you jQuery free, and in beautiful Vanilla flavour.
  */
+const DEFAULT_NUM_OF_ROUNDS = 3;
 const PLAYER_1 = 0;
 const PLAYER_2 = 1;
 const DRAW = -1;
@@ -70,14 +72,16 @@ const createEl = function(elementType, elementClass=null, content=null, attribut
 }
 
 export default class RockPaperScissors {
-	constructor(renderingSpec, assets=null, rules=null) {
+	constructor(renderingSpec, assets=null, rules=null, rounds=null) {
 		this.renderingSpec = renderingSpec;
 		console.log('constructor', this, arguments)
 		// setup the assets and rules if provided or use the default
 		this.assets = assets || DEFAULT_ASSETS;
 		this.rules = rules || DEFAULT_RULES;
+		// a log of match outcomes
+		this.matchLog = [];
 		// this match's players
-		this.players = [HUMAN, CPU];
+		this.players = [CPU, CPU];
 		// current player
 		this.currentPlayer = PLAYER_1;
 		// all the game 'pieces'
@@ -86,6 +90,8 @@ export default class RockPaperScissors {
 		this.hand = Array(2);
 		// state of players played. When this array's sum is 1, eval should happen
 		this.state = [0, 0];
+		this.maxRounds = rounds || DEFAULT_NUM_OF_ROUNDS;
+		this.rounds = 1;
 		this.initialiseGame();
 	}
 
@@ -115,15 +121,22 @@ export default class RockPaperScissors {
 	}
 
 	run() {
+		if (this.rounds >= this.maxRounds) {
+			this.rounds = 1;
+			this.writeMessage(this.matchLog.join('-'))
+			alert ('done')
+		}
 		this.players.map((playerType, player) => {
 			let otherPlayer = 1 - player;
 			console.log("P", player, "T", playerType, "this:", this.state[player], "Other", this.state[otherPlayer])
-			if (playerType == CPU && this.state[player] == 0 && this.state[otherPlayer] == 1) {
+			if (playerType == CPU && this.state[player] == 0 &&
+				(this.state[otherPlayer] == 1 || this.players[otherPlayer] == CPU)) {
 				console.log("COMPUTER PLAY", playerType, player)
 				this.getHandForPlayer(player);
 				this.state[player] = 1;
 				this.renderHands();
 				console.log("HAND AFTER CPU", this.hand);
+				// if (this.state[otherPlayer] == 0 && this.players[otherPlayer] == CPU) this.run()
 			}
 			if (this.shouldEval()) {
 				console.log("SHOULD EVAL");
@@ -135,16 +148,23 @@ export default class RockPaperScissors {
 
 	}
 
+	/**
+	 * Check if this match evaluate for a winner. This would happen once both
+	 * players have taken their turns and the sum of this.state == 2
+	 */
 	shouldEval() {
 		return this.state.reduce((a, b) => a + b, 0) == 2;
 	}
 
+	/**
+	 * Evaluate the current hand, return the score (draw, player 1 or player 2)
+	 * and reset the match to prepare it for the next round.
+	 */
 	evaluateHand() {
 		if (this.hand[PLAYER_1] == this.hand[PLAYER_2]) {
 			return this.scoreAndReset(DRAW);
 		} else {
 			const p1Hand = this.hand[PLAYER_1];
-			console.log("Player one hand is ", p1Hand);
 			const p1HandWins = this.rules[p1Hand].wins;
 			if (p1HandWins.indexOf(this.hand[PLAYER_2]) > -1 ) {
 				return this.scoreAndReset(PLAYER_1);
@@ -154,12 +174,20 @@ export default class RockPaperScissors {
 		}
 	}
 
+	/**
+	 * Reset the match and return the winner, after logging it
+	 */
 	scoreAndReset(winner) {
 		this.state = [0, 0];
 		this.hand = Array(2);
+		this.matchLog.push(winner);
+		this.rounds++;
 		return winner;
 	}
 
+	/**
+	 * Generate the game controls for each Human player.
+	 */
 	generateControls(player) {
 		const ctrlImages = [...Array(3).keys()];
 		const controls = Object.keys(this.assets); //
@@ -168,14 +196,16 @@ export default class RockPaperScissors {
 				src: this.assets[item]
 			}
 			let el = createEl('img', 'ctrlImg', null, attributes);
-			el.addEventListener('click' , () => {
-				this.writeMessage(player + " CLICKED " + item);
-				this.hand[player] = item;
-				this.state[player] = 1;
-				console.log("STATE AFTER CLICK", this.state, "HAND IS", this.hand)
-				this.renderHands();
-				this.run();
-			})
+			if (this.players[player] == HUMAN) {
+				el.addEventListener('click' , () => {
+					this.writeMessage(player + " CLICKED " + item);
+					this.hand[player] = item;
+					this.state[player] = 1;
+					console.log("STATE AFTER CLICK", this.state, "HAND IS", this.hand)
+					this.renderHands();
+					this.run();
+				})
+			}
 			ctrlImages[index] = el;
 		})
 		return ctrlImages;
