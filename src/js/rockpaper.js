@@ -81,7 +81,7 @@ export default class RockPaperScissors {
 		// current player
 		this.currentPlayer = PLAYER_1;
 		// all the game 'pieces'
-		this.pieces = Object.keys(this.assets);
+		this.pieces = Object.keys(this.assets).map(k => parseInt(k));
 		// current played hand
 		this.hand = Array(2);
 		// state of players played. When this array's sum is 1, eval should happen
@@ -124,7 +124,8 @@ export default class RockPaperScissors {
 				this.state[player] = 1;
 				this.renderHands();
 				console.log("HAND AFTER CPU", this.hand);
-			} else if (this.shouldEval()) {
+			}
+			if (this.shouldEval()) {
 				console.log("SHOULD EVAL");
 				const winner = this.evaluateHand();
 
@@ -143,7 +144,7 @@ export default class RockPaperScissors {
 			return this.scoreAndReset(DRAW);
 		} else {
 			const p1Hand = this.hand[PLAYER_1];
-			console.log("Player one hand is ", p1Hand)
+			console.log("Player one hand is ", p1Hand);
 			const p1HandWins = this.rules[p1Hand];
 			if (p1HandWins.indexOf(this.hand[PLAYER_2]) > -1 ) {
 				return this.scoreAndReset(PLAYER_1);
@@ -168,9 +169,9 @@ export default class RockPaperScissors {
 			let el = createEl('img', 'ctrlImg', null, attributes);
 			el.addEventListener('click' , () => {
 				this.writeMessage(player + " CLICKED " + index);
-				this.hand[player] == index;
+				this.hand[player] = index;
 				this.state[player] = 1;
-				console.log("STATE AFTER CLICK", this.state)
+				console.log("STATE AFTER CLICK", this.state, "HAND IS", this.hand)
 				this.renderHands();
 				this.run();
 			})
