@@ -157,14 +157,11 @@ export default class RockPaperScissors {
 		this.players.map((playerType, player) => {
 			let otherPlayer = 1 - player;
 			let cpuPlayed = false;
-			console.log("P", player, "T", playerType, "this:", this.state[player], "Other", this.state[otherPlayer])
 			if (playerType == CPU && this.state[player] == 0 &&
 				(this.state[otherPlayer] == 1 || this.players[otherPlayer] == CPU)) {
-				console.log("COMPUTER PLAY", playerType, player)
 				this.getHandForPlayer(player);
 				this.state[player] = 1;
 				this.renderHands();
-				console.log("HAND AFTER CPU", this.hand);
 				cpuPlayed = true;
 			}
 			if (this.shouldEval()) {
@@ -247,8 +244,10 @@ export default class RockPaperScissors {
 		this.hand = Array(2);
 		if (full) {
 			this.rounds = 0;
+			this.writeMessage("Again, Again! Lets go again!")
 		}
 	}
+
 	/**
 	 * Reset the match and return the winner, after logging it
 	 */
@@ -269,7 +268,8 @@ export default class RockPaperScissors {
 			let attributes = {
 				src: this.assets[item]
 			}
-			let el = createEl('img', 'ctrlImg', null, attributes);
+			let className = this.players[player] == HUMAN ? 'ctrlImg' : 'ctrlImgCpu';
+			let el = createEl('img', className, null, attributes);
 			if (this.players[player] == HUMAN) {
 				el.addEventListener('click' , () => {
 					this.hand[player] = item;
@@ -311,6 +311,13 @@ export default class RockPaperScissors {
 		if (imageP2) {
 			this.player2Container.innerHTML = `<img src="${imageP2}" class="pieceImg"/>`;
 		}
+	}
+
+	/**
+	 * Return true if this match is played Computer vs Computer.
+	 */
+	isFullAutoMode() {
+		return this.players[0] == CPU && this.players[1] == CPU;
 	}
 
 	/**
