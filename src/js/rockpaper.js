@@ -91,7 +91,7 @@ export default class RockPaperScissors {
 		// state of players played. When this array's sum is 1, eval should happen
 		this.state = [0, 0];
 		this.maxRounds = rounds || DEFAULT_NUM_OF_ROUNDS;
-		this.rounds = 1;
+		this.rounds = 0;
 		this.initialiseGame();
 	}
 
@@ -115,8 +115,6 @@ export default class RockPaperScissors {
 	initialiseGame() {
 		this.initialiseLayout();
 		this.welcomeMessages();
-		// this.prepareHands();
-		// this.renderHands();
 		this.run();
 	}
 
@@ -124,10 +122,11 @@ export default class RockPaperScissors {
 		if (this.rounds >= this.maxRounds) {
 			this.rounds = 1;
 			this.writeMessage(this.matchLog.join('-'))
-			alert ('done')
+			return;
 		}
 		this.players.map((playerType, player) => {
 			let otherPlayer = 1 - player;
+			let cpuPlayed = false;
 			console.log("P", player, "T", playerType, "this:", this.state[player], "Other", this.state[otherPlayer])
 			if (playerType == CPU && this.state[player] == 0 &&
 				(this.state[otherPlayer] == 1 || this.players[otherPlayer] == CPU)) {
@@ -136,13 +135,14 @@ export default class RockPaperScissors {
 				this.state[player] = 1;
 				this.renderHands();
 				console.log("HAND AFTER CPU", this.hand);
-				// if (this.state[otherPlayer] == 0 && this.players[otherPlayer] == CPU) this.run()
+				cpuPlayed = true;
 			}
 			if (this.shouldEval()) {
-				console.log("SHOULD EVAL");
 				const winner = this.evaluateHand();
-
-				this.writeMessage("WINNER IS " +  winner)
+				this.writeMessage("WINNER IS " +  winner);
+			} else if (this.state[otherPlayer] == 0 && this.players[otherPlayer] == CPU && cpuPlayed) {
+				console.log("RUN AGAIN")
+				this.run()
 			}
 		})
 
@@ -182,6 +182,7 @@ export default class RockPaperScissors {
 		this.hand = Array(2);
 		this.matchLog.push(winner);
 		this.rounds++;
+		console.log("WINNER IS ", winner)
 		return winner;
 	}
 
@@ -229,11 +230,6 @@ export default class RockPaperScissors {
 		const randHand = Math.floor(Math.random() * 3);
 		this.hand[player] = this.pieces[randHand];
 		return this.hand[player];
-	}
-
-	prepareHands() {
-		this.getHandForPlayer(PLAYER_1);
-		this.getHandForPlayer(PLAYER_2);
 	}
 
 	renderHands() {
