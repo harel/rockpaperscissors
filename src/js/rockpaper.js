@@ -169,6 +169,9 @@ export default class RockPaperScissors {
 		})
 		if (this.hand[0] && this.hand[1] && this.rounds <= this.maxRounds) {
 			this.renderHands();
+			this.players.map((playerType, player) => {
+				this.writeMessage('Player' + (player+1) + ' threw ' + this.hand[player]);
+			})
 			const thisRound = this.rounds;
 			const winner = this.evaluateHand();
 			this.writeMessage(`${thisRound} of ${this.maxRounds} won by: ${OUTCOME_LABELS[winner]}`);
@@ -287,7 +290,6 @@ export default class RockPaperScissors {
 					this.hand[player] = item;
 					this.state[player] = 1;
 					this.renderHands();
-					console.log("IMAGE CLICK")
 					this.run();
 				})
 			}
@@ -326,11 +328,11 @@ export default class RockPaperScissors {
 		const imageP2 = this.hand[PLAYER_2] ? this.assets[this.hand[PLAYER_2]] : false;
 		if (imageP1) {
 			this.player1Container.innerHTML = `<img src="${imageP1}" class="pieceImg"/>`;
-			this.writeMessage('Player 1 threw ' + this.hand[PLAYER_1])
+
 		}
 		if (imageP2) {
 			this.player2Container.innerHTML = `<img src="${imageP2}" class="pieceImg"/>`;
-			this.writeMessage('Player 2 threw ' + this.hand[PLAYER_2])
+
 		}
 	}
 
@@ -350,6 +352,8 @@ export default class RockPaperScissors {
 		this.writeMessage("Solid advice: Never run with scissors!");
 		if (this.isFullAutoMode()) {
 			this.writeMessage("<strong>FULL AUTO!<BR/>Press the ROUND number to progress</strong>");
+		} else {
+			this.writeMessage("<strong>HOOMAN!<BR/>Select your hand</strong>");
 		}
 	}
 
@@ -359,6 +363,6 @@ export default class RockPaperScissors {
 	writeMessage(message) {
 		const messageBlock = createEl('div', 'message', message);
 		this.messagesContainer.insertBefore(messageBlock, this.messagesContainer.firstChild);
-	} 
+	}
 
 }
