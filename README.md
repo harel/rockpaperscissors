@@ -23,8 +23,11 @@ The constructor signature is :
 (players=null, renderingSpec=null, assets=null, rules=null, rounds=null)
 ```
 
-* `players`: an array of two elements with either 'H' or 'C' to determine the type of players participating. The bleeding kind, or the electric kind.
-* `renderingSpec`: An object with the following signature, containing the ids of DOM elements to render the UI into:
+##### players
+An array of two elements with either 'H' or 'C' to determine the type of players participating. The bleeding kind, or the electric kind.
+
+##### renderingSpec
+An object with the following signature, containing the ids of DOM elements to render the UI into:
 ```
 {
 	player1: 'container for player 1 hand',
@@ -35,7 +38,8 @@ The constructor signature is :
 	rounds: 'container for round indicator'
 }
 ```
-* `assets`: An object whose keys are the name of the 'pieces' and values are  urls to images that represent them. For example, the default assets for traditional RPS are:
+##### assets
+An object whose keys are the name of the 'pieces' and values are  urls to images that represent them. For example, the default assets for traditional RPS are:
 ```
 {
 	'rock': 'http://www.dododex.com/media/item/Stone.png', // ROCK
@@ -43,7 +47,8 @@ The constructor signature is :
 	'scissors': 'http://findicons.com/files/icons/196/office_tools/128/scissors.png' // SCISSORS
 }
 ```
-* `rules`: An object containing the rules of engagement. Each key should correspond one of the `assets` keys provided, and the value is an object describing which 'other' keys this piece wins.
+##### rules
+An object containing the rules of engagement. Each key should correspond one of the `assets` keys provided, and the value is an object describing which 'other' keys this piece wins.
 ```
 {
 	'rock': {wins: ['scissors']},
@@ -61,7 +66,8 @@ while the *Lizard Spock* rules are:
 	'spock': {wins: ['rock', 'scissors']}
 }
 ```
-* `rounds`: The number of rounds per match (default=3)
+##### rounds
+The number of rounds per match (default=3)
 
 The game comes with 3 edition presets. One for a traditional RPS setup, one for the *Meme Edition*, and one for the *Lizard Spock* variant (who came up with that???)
 
@@ -70,4 +76,4 @@ The code comes with a set of unit tests I thought were adequate.
 
 
 ### Further steps
-Things can always be better, and this being MVP means a lot of things can be improved on. The UX can be more unified as far as the differences in gameplay mechanics between H-C and C-C games. The game is tested responsive in a browser emulator but not on actual devices. As well, responsiveness is set up for a generic range of viewports, not a specific set of actual real world devices.
+Things can always be better, and this being MVP means a lot of things can be improved on. The UX can be more unified as far as the differences in gameplay mechanics between H-C and C-C games. The game is tested responsive in a browser emulator but not on actual devices. As well, responsiveness is set up for a generic range of viewports, not a specific set of actual real world devices. As well, more tests could have been devised.
