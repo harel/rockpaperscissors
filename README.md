@@ -51,6 +51,16 @@ The constructor signature is :
 	'scissors': {wins: ['paper']}
 }
 ```
+while the *Lizard Spock* rules are:
+```
+{
+	'rock': {wins: ['scissors', 'lizard']},
+	'paper': {wins: ['rock', 'spock']},
+	'scissors': {wins: ['paper', 'lizard']},
+	'lizard': {wins: ['paper', 'spock']},
+	'spock': {wins: ['rock', 'scissors']}
+}
+```
 * `rounds`: The number of rounds per match (default=3)
 
 The game comes with 3 edition presets. One for a traditional RPS setup, one for the *Meme Edition*, and one for the *Lizard Spock* variant (who came up with that???)
@@ -60,4 +70,4 @@ The code comes with a set of unit tests I thought were adequate.
 
 
 ### Further steps
-Things can always be better, and this being MVP means a lot of things can be improved on. The UX can be more unified as far as the differences in gameplay mechanics between H-C and C-C games. The game is tested responsive in a browser emulator but not on actual devices. As well, responsiveness is set up for a generic range of viewports, not a specific set of actual real world devices. 
+Things can always be better, and this being MVP means a lot of things can be improved on. The UX can be more unified as far as the differences in gameplay mechanics between H-C and C-C games. The game is tested responsive in a browser emulator but not on actual devices. As well, responsiveness is set up for a generic range of viewports, not a specific set of actual real world devices.
