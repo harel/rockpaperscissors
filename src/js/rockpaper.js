@@ -100,7 +100,6 @@ const clearChildren = function(element) {
 
 export default class RockPaperScissors {
 	constructor(players=null, renderingSpec=null, assets=null, rules=null, rounds=null) {
-		console.log(players, renderingSpec, assets, rules, rounds)
 		this.renderingSpec = renderingSpec || DEFAULT_RENDER_SPEC;
 		// setup the assets and rules if provided or use the default
 		this.assets = assets || DEFAULT_ASSETS;
@@ -195,6 +194,11 @@ export default class RockPaperScissors {
 		}
 	}
 
+	/**
+	 * render the match outcome gifs to show the bewilderment of the user
+	 * and the sheer happiness of the winner. Don't feel sorry for the loser,
+	 * he let the other one win...
+	 */
 	matchOutcomeSequence(outcome) {
 		const p1Img = [-1, 1].indexOf(outcome) > -1 ?
 			`<img src="${LOST_IT_IMG}" class="pieceImg"/>` :
@@ -206,6 +210,9 @@ export default class RockPaperScissors {
 		this.player2Container.innerHTML = p2Img;
 	}
 
+	/**
+	 * Called when a match is finished (after n rounds)
+	 */
 	matchFinished() {
 		const outcome = this.matchWinner();
 		this.writeMessage("This match was won by: " + OUTCOME_LABELS[outcome]);
@@ -239,6 +246,10 @@ export default class RockPaperScissors {
 		}
 	}
 
+	/**
+	 * Reset the round, or the whole match
+	 * @type {boolean} true to reset the entire match
+	 */
 	reset(full=false) {
 		this.state = [0, 0];
 		this.hand = Array(2);
@@ -285,6 +296,9 @@ export default class RockPaperScissors {
 		return ctrlImages;
 	}
 
+	/**
+	 * Genarate and attach the game controls to the panels.
+	 */
 	attachControls() {
 		this.generateControls(PLAYER_1).map((ctrl) => {
 			this.player1Ctrl.appendChild(ctrl);
@@ -304,6 +318,9 @@ export default class RockPaperScissors {
 		return this.hand[player];
 	}
 
+	/**
+	 * Render the current hands and describe the throws in the messages panel
+	 */
 	renderHands() {
 		const imageP1 = this.hand[PLAYER_1] ? this.assets[this.hand[PLAYER_1]] : false;
 		const imageP2 = this.hand[PLAYER_2] ? this.assets[this.hand[PLAYER_2]] : false;
@@ -342,10 +359,6 @@ export default class RockPaperScissors {
 	writeMessage(message) {
 		const messageBlock = createEl('div', 'message', message);
 		this.messagesContainer.insertBefore(messageBlock, this.messagesContainer.firstChild);
-	}
-
-	status() {
-		return 'OK'
-	}
+	} 
 
 }
